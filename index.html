@@ -1,606 +1,392 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Meridian Loan Tracker</title>
-  <style>/* ââ reset <link rel="stylesheet" href="css/style.css" /> base âââââââââââââââââââââââââââââââââ */Â*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }ÂÂ:root {Â  --blue-50: #E6F1FB;Â  --blue-100: #B5D4F4;Â  --blue-600: #185FA5;Â  --blue-700: #0C447C;Â  --blue-900: #042C53;Â  --gray-50: #F7F8FA;Â  --gray-100: #EEF0F3;Â  --gray-200: #D8DCE3;Â  --gray-400: #9AA0AB;Â  --gray-600: #5C6370;Â  --gray-900: #1A1D23;Â  --green-bg: #EAF3DE; --green-txt: #27500A;Â  --amber-bg: #FAEEDA; --amber-txt: #633806;Â  --teal-bg:  #E1F5EE; --teal-txt:  #085041;Â  --purple-bg:#EEEDFE; --purple-txt:#3C3489;Â  --red-bg:   #FCEBEB; --red-txt:   #791F1F;Â  --radius-sm: 6px;Â  --radius-md: 10px;Â  --radius-lg: 14px;Â  --shadow-sm: 0 1px 3px rgba(0,0,0,.07), 0 1px 2px rgba(0,0,0,.04);Â  --shadow-md: 0 4px 12px rgba(0,0,0,.09);Â  font-family: 'DM Sans', sans-serif;Â  color: var(--gray-900);Â  background: var(--gray-50);Â}ÂÂbody { min-height: 100vh; }ÂÂ/* ââ pages âââââââââââââââââââââââââââââââââââââââ */Â.page { display: none; }Â.page.active { display: flex; }ÂÂ/* ââ LOGIN âââââââââââââââââââââââââââââââââââââââ */Â.login-bg {Â  width: 100vw; min-height: 100vh;Â  background: linear-gradient(135deg, var(--blue-900) 0%, var(--blue-700) 60%, var(--blue-600) 100%);Â  display: flex; align-items: center; justify-content: center; padding: 1.5rem;Â}Â.login-card {Â  background: #fff; border-radius: var(--radius-lg);Â  padding: 2.5rem 2rem; width: 100%; max-width: 380px;Â  box-shadow: var(--shadow-md);Â}Â.login-logo {Â  width: 52px; height: 52px; border-radius: var(--radius-md);Â  background: var(--blue-600); display: flex; align-items: center;Â  justify-content: center; margin: 0 auto 1rem;Â}Â.login-logo i { font-size: 26px; color: #fff; }Â.login-title { text-align: center; font-size: 22px; font-weight: 600; color: var(--gray-900); }Â.login-sub { text-align: center; font-size: 13px; color: var(--gray-400); margin-bottom: 1.75rem; }Â.login-error {Â  background: var(--red-bg); color: var(--red-txt);Â  border-radius: var(--radius-sm); padding: 10px 12px;Â  font-size: 13px; margin-bottom: 1rem;Â}Â.hidden { display: none !important; }Â.field { margin-bottom: 1rem; }Â.field label { display: block; font-size: 12px; font-weight: 500; color: var(--gray-600); margin-bottom: 5px; }Â.field input, .field select, .field textarea {Â  width: 100%; padding: 9px 12px; border: 1.5px solid var(--gray-200);Â  border-radius: var(--radius-sm); font-size: 13px; font-family: inherit;Â  background: #fff; color: var(--gray-900); transition: border-color .15s;Â}Â.field input:focus, .field select:focus, .field textarea:focus {Â  outline: none; border-color: var(--blue-600);Â}Â.field textarea { resize: vertical; min-height: 60px; }Â.input-icon { position: relative; }Â.input-icon i { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); font-size: 16px; color: var(--gray-400); pointer-events: none; }Â.input-icon input { padding-left: 34px; }Â.btn-login {Â  width: 100%; padding: 11px; background: var(--blue-600); color: #fff;Â  border: none; border-radius: var(--radius-sm); font-size: 14px;Â  font-weight: 600; cursor: pointer; display: flex; align-items: center;Â  justify-content: center; gap: 6px; margin-top: .25rem; transition: background .15s;Â}Â.btn-login:hover { background: var(--blue-700); }Â.login-hint { text-align: center; font-size: 12px; color: var(--gray-400); margin-top: 1rem; }Â.login-hint strong { color: var(--gray-600); }ÂÂ/* ââ APP SHELL âââââââââââââââââââââââââââââââââââ */Â#page-app { width: 100vw; min-height: 100vh; flex-direction: row; }ÂÂ/* SIDEBAR */Â.sidebar {Â  width: 220px; min-height: 100vh; background: var(--blue-900);Â  display: flex; flex-direction: column; flex-shrink: 0;Â  transition: transform .25s ease;Â}Â.sidebar-top { display: flex; align-items: center; justify-content: space-between; padding: 1.25rem 1rem 1rem; }Â.sidebar-logo { display: flex; align-items: center; gap: 8px; color: #fff; font-size: 16px; font-weight: 600; }Â.sidebar-logo i { font-size: 22px; color: var(--blue-100); }Â.sidebar-close { display: none; background: none; border: none; color: #fff; font-size: 20px; cursor: pointer; }Â.sidebar-nav { flex: 1; padding: 0 .75rem; display: flex; flex-direction: column; gap: 2px; }Â.nav-item {Â  display: flex; align-items: center; gap: 10px; padding: 9px 12px;Â  border-radius: var(--radius-sm); color: rgba(255,255,255,.65);Â  font-size: 13px; font-weight: 500; text-decoration: none; transition: all .15s;Â}Â.nav-item i { font-size: 17px; }Â.nav-item:hover { background: rgba(255,255,255,.1); color: #fff; }Â.nav-item.active { background: var(--blue-600); color: #fff; }Â.sidebar-footer { padding: 1rem; border-top: 1px solid rgba(255,255,255,.1); display: flex; align-items: center; gap: 8px; }Â.user-pill { display: flex; align-items: center; gap: 8px; flex: 1; min-width: 0; }Â.user-avatar {Â  width: 34px; height: 34px; border-radius: 50%;Â  background: var(--blue-600); color: var(--blue-50);Â  display: flex; align-items: center; justify-content: center;Â  font-size: 12px; font-weight: 600; flex-shrink: 0;Â}Â.user-info { min-width: 0; }Â.user-name { font-size: 13px; font-weight: 500; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }Â.user-role { font-size: 11px; color: rgba(255,255,255,.5); }Â.btn-logout { background: none; border: none; color: rgba(255,255,255,.5); font-size: 18px; cursor: pointer; padding: 4px; flex-shrink: 0; }Â.btn-logout:hover { color: #fff; }ÂÂ/* MAIN */Â.main-content { flex: 1; display: flex; flex-direction: column; min-width: 0; overflow-x: hidden; }Â.topbar {Â  background: #fff; border-bottom: 1px solid var(--gray-100);Â  padding: .75rem 1.5rem; display: flex; align-items: center; gap: 12px;Â  position: sticky; top: 0; z-index: 10;Â}Â.hamburger { display: none; background: none; border: none; font-size: 20px; cursor: pointer; color: var(--gray-600); }Â.topbar-title { flex: 1; font-size: 15px; font-weight: 600; color: var(--gray-900); }Â.btn-new-loan {Â  display: flex; align-items: center; gap: 6px; padding: 8px 14px;Â  background: var(--blue-600); color: #fff; border: none;Â  border-radius: var(--radius-sm); font-size: 13px; font-weight: 500;Â  cursor: pointer; white-space: nowrap; transition: background .15s;Â}Â.btn-new-loan:hover { background: var(--blue-700); }ÂÂ/* VIEWS */Â.view { display: none; padding: 1.5rem; }Â.view.active { display: block; }ÂÂ/* STATS */Â.stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin-bottom: 1.75rem; }Â.stat-card { background: #fff; border: 1px solid var(--gray-100); border-radius: var(--radius-md); padding: 14px 16px; }Â.stat-label { font-size: 12px; color: var(--gray-400); margin-bottom: 6px; }Â.stat-val { font-size: 24px; font-weight: 600; color: var(--gray-900); }Â.stat-val.blue { color: var(--blue-600); }Â.stat-val.green { color: #3B6D11; }Â.stat-val.amber { color: #854F0B; }ÂÂ/* SECTION HEADER */Â.section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; }Â.section-header h2 { font-size: 15px; font-weight: 600; }ÂÂ/* TOOLBAR */Â.toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-bottom: 1.25rem; }Â.search-bar {Â  display: flex; align-items: center; gap: 8px;Â  background: #fff; border: 1px solid var(--gray-200);Â  border-radius: var(--radius-sm); padding: 7px 10px; flex: 1; min-width: 200px;Â}Â.search-bar i { font-size: 16px; color: var(--gray-400); flex-shrink: 0; }Â.search-bar input { border: none; background: transparent; font-family: inherit; font-size: 13px; color: var(--gray-900); outline: none; width: 100%; }Â.filter-chips { display: flex; flex-wrap: wrap; gap: 6px; }Â.chip {Â  padding: 5px 11px; border-radius: 20px; font-size: 11px; font-weight: 500;Â  border: 1px solid var(--gray-200); background: #fff; color: var(--gray-600); cursor: pointer;Â}Â.chip.active { background: var(--blue-600); color: #fff; border-color: var(--blue-600); }ÂÂ/* LOAN CARDS */Â.loan-list { display: flex; flex-direction: column; gap: 12px; }Â.loan-card {Â  background: #fff; border: 1px solid var(--gray-100); border-radius: var(--radius-lg);Â  padding: 1rem 1.25rem; cursor: pointer; transition: border-color .15s, box-shadow .15s;Â}Â.loan-card:hover { border-color: var(--blue-100); box-shadow: var(--shadow-sm); }Â.lc-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 12px; }Â.lc-identity { display: flex; align-items: center; gap: 10px; }Â.lc-avatar {Â  width: 40px; height: 40px; border-radius: 50%;Â  background: var(--blue-50); color: var(--blue-700);Â  display: flex; align-items: center; justify-content: center;Â  font-size: 13px; font-weight: 600; flex-shrink: 0;Â}Â.lc-name { font-size: 14px; font-weight: 600; color: var(--gray-900); }Â.lc-meta { font-size: 12px; color: var(--gray-400); margin-top: 2px; font-family: 'DM Mono', monospace; }Â.lc-right { display: flex; flex-direction: column; align-items: flex-end; gap: 5px; }Â.lc-amount { font-size: 15px; font-weight: 600; }Â.badge {Â  display: inline-flex; align-items: center; gap: 4px;Â  padding: 3px 9px; border-radius: 20px; font-size: 11px; font-weight: 500;Â}Â.badge.received  { background: var(--gray-100); color: var(--gray-600); }Â.badge.docreview { background: var(--blue-50);  color: var(--blue-700); }Â.badge.credit    { background: var(--purple-bg); color: var(--purple-txt); }Â.badge.underwriting { background: var(--amber-bg); color: var(--amber-txt); }Â.badge.approved  { background: var(--green-bg);  color: var(--green-txt); }Â.badge.disbursed { background: var(--teal-bg);   color: var(--teal-txt); }ÂÂ/* PROGRESS PIPELINE */Â.pipeline { margin-bottom: 10px; }Â.pipeline-track { display: flex; align-items: center; }Â.pip-node {Â  width: 22px; height: 22px; border-radius: 50%; flex-shrink: 0; z-index: 1;Â  display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 600;Â}Â.pip-node.done     { background: var(--blue-600); color: #fff; }Â.pip-node.current  { background: var(--blue-600); color: #fff; box-shadow: 0 0 0 4px var(--blue-50); }Â.pip-node.upcoming { background: var(--gray-100); color: var(--gray-400); border: 1.5px solid var(--gray-200); }Â.pip-line { flex: 1; height: 2px; }Â.pip-line.done   { background: var(--blue-600); }Â.pip-line.upcoming { background: var(--gray-200); }Â.pipeline-labels { display: flex; margin-top: 5px; }Â.pip-label { flex: 1; font-size: 9.5px; color: var(--gray-400); text-align: center; }Â.pip-label.done, .pip-label.current { color: var(--blue-600); font-weight: 500; }ÂÂ/* LOAN FOOTER */Â.lc-footer { display: flex; flex-wrap: wrap; gap: 12px; padding-top: 10px; border-top: 1px solid var(--gray-100); }Â.lc-foot-item { display: flex; align-items: center; gap: 5px; font-size: 12px; color: var(--gray-600); }Â.lc-foot-item i { font-size: 14px; color: var(--gray-400); }ÂÂ/* OFFICERS TABLE */Â.officers-table-wrap { background: #fff; border: 1px solid var(--gray-100); border-radius: var(--radius-lg); overflow: hidden; }Â.officers-table { width: 100%; border-collapse: collapse; font-size: 13px; }Â.officers-table th { padding: 10px 14px; text-align: left; font-size: 11px; font-weight: 600; color: var(--gray-400); text-transform: uppercase; letter-spacing: .04em; border-bottom: 1px solid var(--gray-100); background: var(--gray-50); }Â.officers-table td { padding: 10px 14px; border-bottom: 1px solid var(--gray-100); }Â.officers-table tr:last-child td { border-bottom: none; }Â.officer-cell { display: flex; align-items: center; gap: 8px; }Â.officer-avatar { width: 30px; height: 30px; border-radius: 50%; background: var(--blue-50); color: var(--blue-700); display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 600; }ÂÂ/* EMPTY STATE */Â.empty-state { text-align: center; padding: 3rem 1rem; color: var(--gray-400); }Â.empty-state i { font-size: 36px; display: block; margin-bottom: 8px; }Â.empty-state p { font-size: 13px; }ÂÂ/* MODAL */Â.modal-overlay {Â  position: fixed; inset: 0; background: rgba(0,0,0,.45);Â  display: flex; align-items: center; justify-content: center;Â  z-index: 100; padding: 1rem;Â}Â.modal {Â  background: #fff; border-radius: var(--radius-lg);Â  width: 100%; max-width: 480px; max-height: 90vh; overflow-y: auto;Â  box-shadow: var(--shadow-md);Â}Â.modal-header { display: flex; align-items: center; justify-content: space-between; padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--gray-100); }Â.modal-header h3 { font-size: 15px; font-weight: 600; }Â.modal-close { background: none; border: none; font-size: 20px; cursor: pointer; color: var(--gray-400); padding: 2px; }Â.modal-body { padding: 1.25rem 1.5rem; display: flex; flex-direction: column; gap: 0; }Â.field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }Â.modal-footer { display: flex; justify-content: flex-end; gap: 8px; padding: 1rem 1.5rem; border-top: 1px solid var(--gray-100); }Â.btn-primary { padding: 9px 18px; background: var(--blue-600); color: #fff; border: none; border-radius: var(--radius-sm); font-size: 13px; font-weight: 600; cursor: pointer; }Â.btn-primary:hover { background: var(--blue-700); }Â.btn-secondary { padding: 9px 14px; background: #fff; color: var(--gray-600); border: 1.5px solid var(--gray-200); border-radius: var(--radius-sm); font-size: 13px; font-weight: 500; cursor: pointer; }ÂÂ/* RESPONSIVE */Â@media (max-width: 700px) {Â  .sidebar { position: fixed; top: 0; left: 0; height: 100vh; z-index: 50; transform: translateX(-100%); }Â  .sidebar.open { transform: translateX(0); }Â  .sidebar-close { display: block; }Â  .hamburger { display: block; }Â  .field-row { grid-template-columns: 1fr; }Â  .view { padding: 1rem; }Â  .topbar { padding: .75rem 1rem; }Â}Â</style>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.3.0/tabler-icons.min.css" />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Meridian Loan Tracker</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.3.0/tabler-icons.min.css"/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--blue-50:#E6F1FB;--blue-100:#B5D4F4;--blue-600:#185FA5;--blue-700:#0C447C;--blue-900:#042C53;--gray-50:#F7F8FA;--gray-100:#EEF0F3;--gray-200:#D8DCE3;--gray-400:#9AA0AB;--gray-600:#5C6370;--gray-900:#1A1D23;--green-bg:#EAF3DE;--green-txt:#27500A;--amber-bg:#FAEEDA;--amber-txt:#633806;--teal-bg:#E1F5EE;--teal-txt:#085041;--purple-bg:#EEEDFE;--purple-txt:#3C3489;--red-bg:#FCEBEB;--red-txt:#791F1F;font-family:'DM Sans',sans-serif;color:var(--gray-900);background:var(--gray-50)}
+body{min-height:100vh}
+.page{display:none}.page.active{display:flex}
+.login-bg{width:100vw;min-height:100vh;background:linear-gradient(135deg,var(--blue-900) 0%,var(--blue-700) 60%,var(--blue-600) 100%);display:flex;align-items:center;justify-content:center;padding:1.5rem}
+.login-card{background:#fff;border-radius:14px;padding:2.5rem 2rem;width:100%;max-width:380px;box-shadow:0 4px 12px rgba(0,0,0,.09)}
+.login-logo{width:52px;height:52px;border-radius:10px;background:var(--blue-600);display:flex;align-items:center;justify-content:center;margin:0 auto 1rem}
+.login-logo i{font-size:26px;color:#fff}
+.login-title{text-align:center;font-size:22px;font-weight:600}
+.login-sub{text-align:center;font-size:13px;color:var(--gray-400);margin-bottom:1.75rem}
+.login-error{background:var(--red-bg);color:var(--red-txt);border-radius:6px;padding:10px 12px;font-size:13px;margin-bottom:1rem}
+.hidden{display:none!important}
+.field{margin-bottom:1rem}
+.field label{display:block;font-size:12px;font-weight:500;color:var(--gray-600);margin-bottom:5px}
+.field input,.field select,.field textarea{width:100%;padding:9px 12px;border:1.5px solid var(--gray-200);border-radius:6px;font-size:13px;font-family:inherit;background:#fff;color:var(--gray-900)}
+.field input:focus,.field select:focus,.field textarea:focus{outline:none;border-color:var(--blue-600)}
+.field textarea{resize:vertical;min-height:60px}
+.input-icon{position:relative}
+.input-icon i{position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:16px;color:var(--gray-400);pointer-events:none}
+.input-icon input{padding-left:34px}
+.btn-login{width:100%;padding:11px;background:var(--blue-600);color:#fff;border:none;border-radius:6px;font-size:14px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;margin-top:.25rem}
+.btn-login:hover{background:var(--blue-700)}
+.login-hint{text-align:center;font-size:12px;color:var(--gray-400);margin-top:1rem}
+.login-hint strong{color:var(--gray-600)}
+#page-app{width:100vw;min-height:100vh;flex-direction:row}
+.sidebar{width:220px;min-height:100vh;background:var(--blue-900);display:flex;flex-direction:column;flex-shrink:0;transition:transform .25s ease}
+.sidebar-top{display:flex;align-items:center;justify-content:space-between;padding:1.25rem 1rem 1rem}
+.sidebar-logo{display:flex;align-items:center;gap:8px;color:#fff;font-size:16px;font-weight:600}
+.sidebar-logo i{font-size:22px;color:var(--blue-100)}
+.sidebar-close{display:none;background:none;border:none;color:#fff;font-size:20px;cursor:pointer}
+.sidebar-nav{flex:1;padding:0 .75rem;display:flex;flex-direction:column;gap:2px}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:6px;color:rgba(255,255,255,.65);font-size:13px;font-weight:500;text-decoration:none}
+.nav-item i{font-size:17px}
+.nav-item:hover{background:rgba(255,255,255,.1);color:#fff}
+.nav-item.active{background:var(--blue-600);color:#fff}
+.sidebar-footer{padding:1rem;border-top:1px solid rgba(255,255,255,.1);display:flex;align-items:center;gap:8px}
+.user-pill{display:flex;align-items:center;gap:8px;flex:1;min-width:0}
+.user-avatar{width:34px;height:34px;border-radius:50%;background:var(--blue-600);color:var(--blue-50);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;flex-shrink:0}
+.user-info{min-width:0}
+.user-name{font-size:13px;font-weight:500;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.user-role{font-size:11px;color:rgba(255,255,255,.5)}
+.btn-logout{background:none;border:none;color:rgba(255,255,255,.5);font-size:18px;cursor:pointer;padding:4px;flex-shrink:0}
+.btn-logout:hover{color:#fff}
+.main-content{flex:1;display:flex;flex-direction:column;min-width:0;overflow-x:hidden}
+.topbar{background:#fff;border-bottom:1px solid var(--gray-100);padding:.75rem 1.5rem;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:10}
+.hamburger{display:none;background:none;border:none;font-size:20px;cursor:pointer;color:var(--gray-600)}
+.topbar-title{flex:1;font-size:15px;font-weight:600}
+.btn-new-loan{display:flex;align-items:center;gap:6px;padding:8px 14px;background:var(--blue-600);color:#fff;border:none;border-radius:6px;font-size:13px;font-weight:500;cursor:pointer;white-space:nowrap}
+.btn-new-loan:hover{background:var(--blue-700)}
+.view{display:none;padding:1.5rem}
+.view.active{display:block}
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:1.75rem}
+.stat-card{background:#fff;border:1px solid var(--gray-100);border-radius:10px;padding:14px 16px}
+.stat-label{font-size:12px;color:var(--gray-400);margin-bottom:6px}
+.stat-val{font-size:24px;font-weight:600}
+.stat-val.blue{color:var(--blue-600)}.stat-val.green{color:#3B6D11}.stat-val.amber{color:#854F0B}
+.section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem}
+.section-header h2{font-size:15px;font-weight:600}
+.toolbar{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-bottom:1.25rem}
+.search-bar{display:flex;align-items:center;gap:8px;background:#fff;border:1px solid var(--gray-200);border-radius:6px;padding:7px 10px;flex:1;min-width:200px}
+.search-bar i{font-size:16px;color:var(--gray-400);flex-shrink:0}
+.search-bar input{border:none;background:transparent;font-family:inherit;font-size:13px;color:var(--gray-900);outline:none;width:100%}
+.filter-chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{padding:5px 11px;border-radius:20px;font-size:11px;font-weight:500;border:1px solid var(--gray-200);background:#fff;color:var(--gray-600);cursor:pointer}
+.chip.active{background:var(--blue-600);color:#fff;border-color:var(--blue-600)}
+.loan-list{display:flex;flex-direction:column;gap:12px}
+.loan-card{background:#fff;border:1px solid var(--gray-100);border-radius:14px;padding:1rem 1.25rem;cursor:pointer}
+.loan-card:hover{border-color:var(--blue-100)}
+.lc-top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+.lc-identity{display:flex;align-items:center;gap:10px}
+.lc-avatar{width:40px;height:40px;border-radius:50%;background:var(--blue-50);color:var(--blue-700);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;flex-shrink:0}
+.lc-name{font-size:14px;font-weight:600}
+.lc-meta{font-size:12px;color:var(--gray-400);margin-top:2px;font-family:'DM Mono',monospace}
+.lc-right{display:flex;flex-direction:column;align-items:flex-end;gap:5px}
+.lc-amount{font-size:15px;font-weight:600}
+.badge{display:inline-flex;align-items:center;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:500}
+.badge.received{background:var(--gray-100);color:var(--gray-600)}
+.badge.docreview{background:var(--blue-50);color:var(--blue-700)}
+.badge.credit{background:var(--purple-bg);color:var(--purple-txt)}
+.badge.underwriting{background:var(--amber-bg);color:var(--amber-txt)}
+.badge.approved{background:var(--green-bg);color:var(--green-txt)}
+.badge.disbursed{background:var(--teal-bg);color:var(--teal-txt)}
+.pipeline{margin-bottom:10px}
+.pipeline-track{display:flex;align-items:center}
+.pip-node{width:22px;height:22px;border-radius:50%;flex-shrink:0;z-index:1;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600}
+.pip-node.done{background:var(--blue-600);color:#fff}
+.pip-node.current{background:var(--blue-600);color:#fff;box-shadow:0 0 0 4px var(--blue-50)}
+.pip-node.upcoming{background:var(--gray-100);color:var(--gray-400);border:1.5px solid var(--gray-200)}
+.pip-line{flex:1;height:2px}
+.pip-line.done{background:var(--blue-600)}.pip-line.upcoming{background:var(--gray-200)}
+.pipeline-labels{display:flex;margin-top:5px}
+.pip-label{flex:1;font-size:9.5px;color:var(--gray-400);text-align:center}
+.pip-label.done,.pip-label.current{color:var(--blue-600);font-weight:500}
+.lc-footer{display:flex;flex-wrap:wrap;gap:12px;padding-top:10px;border-top:1px solid var(--gray-100)}
+.lc-foot-item{display:flex;align-items:center;gap:5px;font-size:12px;color:var(--gray-600)}
+.lc-foot-item i{font-size:14px;color:var(--gray-400)}
+.officers-table-wrap{background:#fff;border:1px solid var(--gray-100);border-radius:14px;overflow:hidden}
+.officers-table{width:100%;border-collapse:collapse;font-size:13px}
+.officers-table th{padding:10px 14px;text-align:left;font-size:11px;font-weight:600;color:var(--gray-400);text-transform:uppercase;letter-spacing:.04em;border-bottom:1px solid var(--gray-100);background:var(--gray-50)}
+.officers-table td{padding:10px 14px;border-bottom:1px solid var(--gray-100)}
+.officers-table tr:last-child td{border-bottom:none}
+.officer-cell{display:flex;align-items:center;gap:8px}
+.officer-avatar{width:30px;height:30px;border-radius:50%;background:var(--blue-50);color:var(--blue-700);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600}
+.empty-state{text-align:center;padding:3rem 1rem;color:var(--gray-400)}
+.empty-state i{font-size:36px;display:block;margin-bottom:8px}
+.empty-state p{font-size:13px}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;z-index:100;padding:1rem}
+.modal{background:#fff;border-radius:14px;width:100%;max-width:480px;max-height:90vh;overflow-y:auto;box-shadow:0 4px 12px rgba(0,0,0,.09)}
+.modal-header{display:flex;align-items:center;justify-content:space-between;padding:1.25rem 1.5rem;border-bottom:1px solid var(--gray-100)}
+.modal-header h3{font-size:15px;font-weight:600}
+.modal-close{background:none;border:none;font-size:20px;cursor:pointer;color:var(--gray-400)}
+.modal-body{padding:1.25rem 1.5rem}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.modal-footer{display:flex;justify-content:flex-end;gap:8px;padding:1rem 1.5rem;border-top:1px solid var(--gray-100)}
+.btn-primary{padding:9px 18px;background:var(--blue-600);color:#fff;border:none;border-radius:6px;font-size:13px;font-weight:600;cursor:pointer}
+.btn-primary:hover{background:var(--blue-700)}
+.btn-secondary{padding:9px 14px;background:#fff;color:var(--gray-600);border:1.5px solid var(--gray-200);border-radius:6px;font-size:13px;font-weight:500;cursor:pointer}
+@media(max-width:700px){.sidebar{position:fixed;top:0;left:0;height:100vh;z-index:50;transform:translateX(-100%)}.sidebar.open{transform:translateX(0)}.sidebar-close{display:block}.hamburger{display:block}.field-row{grid-template-columns:1fr}.view{padding:1rem}.topbar{padding:.75rem 1rem}}
+</style>
 </head>
 <body>
 
-  <!-- LOGIN PAGE -->
-  <div id="page-login" class="page active">
-    <div class="login-bg">
-      <div class="login-card">
-        <div class="login-logo">
-          <i class="ti ti-building-bank"></i>
-        </div>
-        <h1 class="login-title">Meridian</h1>
-        <p class="login-sub">Loan Process Tracker</p>
-
-        <div id="login-error" class="login-error hidden"></div>
-
-        <div class="field">
-          <label for="login-username">Username</label>
-          <div class="input-icon">
-            <i class="ti ti-user"></i>
-            <input type="text" id="login-username" placeholder="Enter your username" autocomplete="username" />
-          </div>
-        </div>
-        <div class="field">
-          <label for="login-password">Password</label>
-          <div class="input-icon">
-            <i class="ti ti-lock"></i>
-            <input type="password" id="login-password" placeholder="Enter your password" autocomplete="current-password" />
-          </div>
-        </div>
-        <button class="btn-login" id="btn-login">
-          Sign in <i class="ti ti-arrow-right"></i>
-        </button>
-        <p class="login-hint">Demo: <strong>admin / admin123</strong> &nbsp;|&nbsp; <strong>derick / pass123</strong></p>
-      </div>
+<div id="page-login" class="page active">
+  <div class="login-bg">
+    <div class="login-card">
+      <div class="login-logo"><i class="ti ti-building-bank"></i></div>
+      <h1 class="login-title">Meridian</h1>
+      <p class="login-sub">Loan Process Tracker</p>
+      <div id="login-error" class="login-error hidden"></div>
+      <div class="field"><label>Username</label><div class="input-icon"><i class="ti ti-user"></i><input type="text" id="login-username" placeholder="Enter your username"/></div></div>
+      <div class="field"><label>Password</label><div class="input-icon"><i class="ti ti-lock"></i><input type="password" id="login-password" placeholder="Enter your password"/></div></div>
+      <button class="btn-login" id="btn-login">Sign in <i class="ti ti-arrow-right"></i></button>
+      <p class="login-hint">Demo: <strong>admin / admin123</strong> &nbsp;|&nbsp; <strong>derick / pass123</strong></p>
     </div>
   </div>
+</div>
 
-  <!-- MAIN APP PAGE -->
-  <div id="page-app" class="page">
-
-    <!-- SIDEBAR -->
-    <aside class="sidebar" id="sidebar">
-      <div class="sidebar-top">
-        <div class="sidebar-logo">
-          <i class="ti ti-building-bank"></i>
-          <span>Meridian</span>
-        </div>
-        <button class="sidebar-close" id="sidebar-close"><i class="ti ti-x"></i></button>
-      </div>
-
-      <nav class="sidebar-nav">
-        <a href="#" class="nav-item active" data-view="dashboard">
-          <i class="ti ti-layout-dashboard"></i> Dashboard
-        </a>
-        <a href="#" class="nav-item" data-view="loans">
-          <i class="ti ti-file-dollar"></i> All Loans
-        </a>
-        <a href="#" class="nav-item" data-view="my-loans" id="nav-my-loans">
-          <i class="ti ti-user-check"></i> My Loans
-        </a>
-        <a href="#" class="nav-item admin-only hidden" data-view="officers">
-          <i class="ti ti-users"></i> Officers
-        </a>
-      </nav>
-
-      <div class="sidebar-footer">
-        <div class="user-pill" id="sidebar-user">
-          <div class="user-avatar" id="sidebar-avatar"></div>
-          <div class="user-info">
-            <div class="user-name" id="sidebar-name"></div>
-            <div class="user-role" id="sidebar-role"></div>
-          </div>
-        </div>
-        <button class="btn-logout" id="btn-logout" title="Sign out">
-          <i class="ti ti-logout"></i>
-        </button>
-      </div>
-    </aside>
-
-    <!-- MAIN -->
-    <main class="main-content">
-      <div class="topbar">
-        <button class="hamburger" id="hamburger"><i class="ti ti-menu-2"></i></button>
-        <div class="topbar-title" id="topbar-title">Dashboard</div>
-        <button class="btn-new-loan" id="btn-new-loan">
-          <i class="ti ti-plus"></i> New loan
-        </button>
-      </div>
-
-      <!-- DASHBOARD VIEW -->
-      <div id="view-dashboard" class="view active">
-        <div class="stats-grid" id="stats-grid"></div>
-        <div class="section-header">
-          <h2>Recent activity</h2>
-        </div>
-        <div id="recent-loans"></div>
-      </div>
-
-      <!-- ALL LOANS VIEW -->
-      <div id="view-loans" class="view">
-        <div class="toolbar">
-          <div class="search-bar">
-            <i class="ti ti-search"></i>
-            <input type="text" id="search-all" placeholder="Search name, account, officerâ¦" />
-          </div>
-          <div class="filter-chips" id="filter-chips"></div>
-        </div>
-        <div id="all-loans-list"></div>
-      </div>
-
-      <!-- MY LOANS VIEW -->
-      <div id="view-my-loans" class="view">
-        <div class="toolbar">
-          <div class="search-bar">
-            <i class="ti ti-search"></i>
-            <input type="text" id="search-my" placeholder="Search your loansâ¦" />
-          </div>
-        </div>
-        <div id="my-loans-list"></div>
-      </div>
-
-      <!-- OFFICERS VIEW (admin only) -->
-      <div id="view-officers" class="view">
-        <div id="officers-list"></div>
-      </div>
-    </main>
-  </div>
-
-  <!-- LOAN MODAL -->
-  <div id="loan-modal" class="modal-overlay hidden">
-    <div class="modal">
-      <div class="modal-header">
-        <h3 id="modal-title">New loan application</h3>
-        <button class="modal-close" id="modal-close"><i class="ti ti-x"></i></button>
-      </div>
-      <div class="modal-body">
-        <div class="field-row">
-          <div class="field">
-            <label>Customer name</label>
-            <input type="text" id="m-name" placeholder="Full name" />
-          </div>
-          <div class="field">
-            <label>Account number</label>
-            <input type="text" id="m-acct" placeholder="ACC-XXXXXX" />
-          </div>
-        </div>
-        <div class="field-row">
-          <div class="field">
-            <label>Loan officer</label>
-            <input type="text" id="m-officer" placeholder="Assigned officer" />
-          </div>
-          <div class="field">
-            <label>Branch</label>
-            <select id="m-branch">
-              <option>Castries Main</option>
-              <option>Vieux Fort</option>
-              <option>Gros Islet</option>
-              <option>SoufriÃ¨re</option>
-              <option>Micoud</option>
-            </select>
-          </div>
-        </div>
-        <div class="field-row">
-          <div class="field">
-            <label>Loan amount (XCD)</label>
-            <input type="number" id="m-amount" placeholder="e.g. 50000" />
-          </div>
-          <div class="field">
-            <label>Loan type</label>
-            <select id="m-type">
-              <option>Personal</option>
-              <option>Mortgage</option>
-              <option>Business</option>
-              <option>Auto</option>
-              <option>Education</option>
-            </select>
-          </div>
-        </div>
-        <div class="field">
-          <label>Current stage</label>
-          <select id="m-stage">
-            <option value="0">1 Â· Application received</option>
-            <option value="1">2 Â· Document review</option>
-            <option value="2">3 Â· Credit assessment</option>
-            <option value="3">4 Â· Underwriting</option>
-            <option value="4">5 Â· Approval</option>
-            <option value="5">6 Â· Disbursement</option>
-          </select>
-        </div>
-        <div class="field">
-          <label>Notes <span style="font-weight:400;color:#888">(optional)</span></label>
-          <textarea id="m-notes" rows="2" placeholder="Any remarksâ¦"></textarea>
+<div id="page-app" class="page">
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-top">
+      <div class="sidebar-logo"><i class="ti ti-building-bank"></i><span>Meridian</span></div>
+      <button class="sidebar-close" id="sidebar-close"><i class="ti ti-x"></i></button>
+    </div>
+    <nav class="sidebar-nav">
+      <a href="#" class="nav-item active" data-view="dashboard"><i class="ti ti-layout-dashboard"></i> Dashboard</a>
+      <a href="#" class="nav-item" data-view="loans"><i class="ti ti-file-dollar"></i> All Loans</a>
+      <a href="#" class="nav-item" data-view="my-loans"><i class="ti ti-user-check"></i> My Loans</a>
+      <a href="#" class="nav-item admin-only hidden" data-view="officers"><i class="ti ti-users"></i> Officers</a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="user-pill">
+        <div class="user-avatar" id="sidebar-avatar"></div>
+        <div class="user-info">
+          <div class="user-name" id="sidebar-name"></div>
+          <div class="user-role" id="sidebar-role"></div>
         </div>
       </div>
-      <div class="modal-footer">
-        <button class="btn-secondary" id="modal-cancel">Cancel</button>
-        <button class="btn-primary" id="modal-save">Save loan</button>
+      <button class="btn-logout" id="btn-logout" title="Sign out"><i class="ti ti-logout"></i></button>
+    </div>
+  </aside>
+
+  <main class="main-content">
+    <div class="topbar">
+      <button class="hamburger" id="hamburger"><i class="ti ti-menu-2"></i></button>
+      <div class="topbar-title" id="topbar-title">Dashboard</div>
+      <button class="btn-new-loan" id="btn-new-loan"><i class="ti ti-plus"></i> New loan</button>
+    </div>
+    <div id="view-dashboard" class="view active">
+      <div class="stats-grid" id="stats-grid"></div>
+      <div class="section-header"><h2>Recent activity</h2></div>
+      <div id="recent-loans"></div>
+    </div>
+    <div id="view-loans" class="view">
+      <div class="toolbar">
+        <div class="search-bar"><i class="ti ti-search"></i><input type="text" id="search-all" placeholder="Search name, account, officer..."/></div>
+        <div class="filter-chips" id="filter-chips"></div>
       </div>
+      <div id="all-loans-list"></div>
+    </div>
+    <div id="view-my-loans" class="view">
+      <div class="toolbar">
+        <div class="search-bar"><i class="ti ti-search"></i><input type="text" id="search-my" placeholder="Search your loans..."/></div>
+      </div>
+      <div id="my-loans-list"></div>
+    </div>
+    <div id="view-officers" class="view">
+      <div id="officers-list"></div>
+    </div>
+  </main>
+</div>
+
+<div id="loan-modal" class="modal-overlay hidden">
+  <div class="modal">
+    <div class="modal-header"><h3 id="modal-title">New loan application</h3><button class="modal-close" id="modal-close"><i class="ti ti-x"></i></button></div>
+    <div class="modal-body">
+      <div class="field-row">
+        <div class="field"><label>Customer name</label><input type="text" id="m-name" placeholder="Full name"/></div>
+        <div class="field"><label>Account number</label><input type="text" id="m-acct" placeholder="ACC-XXXXXX"/></div>
+      </div>
+      <div class="field-row">
+        <div class="field"><label>Loan officer</label><input type="text" id="m-officer" placeholder="Officer name"/></div>
+        <div class="field"><label>Branch</label><select id="m-branch"><option>Castries Main</option><option>Vieux Fort</option><option>Gros Islet</option><option>Soufriere</option><option>Micoud</option></select></div>
+      </div>
+      <div class="field-row">
+        <div class="field"><label>Loan amount (XCD)</label><input type="number" id="m-amount" placeholder="e.g. 50000"/></div>
+        <div class="field"><label>Loan type</label><select id="m-type"><option>Personal</option><option>Mortgage</option><option>Business</option><option>Auto</option><option>Education</option></select></div>
+      </div>
+      <div class="field"><label>Current stage</label><select id="m-stage"><option value="0">1 - Application received</option><option value="1">2 - Document review</option><option value="2">3 - Credit assessment</option><option value="3">4 - Underwriting</option><option value="4">5 - Approval</option><option value="5">6 - Disbursement</option></select></div>
+      <div class="field"><label>Notes (optional)</label><textarea id="m-notes" rows="2" placeholder="Any remarks..."></textarea></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" id="modal-cancel">Cancel</button>
+      <button class="btn-primary" id="modal-save">Save loan</button>
     </div>
   </div>
+</div>
 
-  <script>
-// ── USERS ────────────────────────────────────────────────────────────────────
-// Passwords stored as plain text here for demo purposes.
-// In production, use bcrypt hashes and a real backend / Azure AD B2C.
-const USERS = [
-  { id: 1, username: 'admin',   password: 'admin123',  displayName: 'Admin User',       role: 'admin',  branch: 'Castries Main' },
-  { id: 2, username: 'derick',  password: 'pass123',   displayName: 'Derick Hippolyte', role: 'officer', branch: 'Castries Main' },
-  { id: 3, username: 'sandra',  password: 'pass123',   displayName: 'Sandra Charles',   role: 'officer', branch: 'Vieux Fort' },
-  { id: 4, username: 'marie',   password: 'pass123',   displayName: 'Marie-Claire Louis', role: 'officer', branch: 'Soufrière' },
-  { id: 5, username: 'kevin',   password: 'pass123',   displayName: 'Kevin Augustin',   role: 'officer', branch: 'Gros Islet' },
-];
-
-// ── STAGES ───────────────────────────────────────────────────────────────────
-const STAGES = [
-  'Application', 'Doc review', 'Credit check', 'Underwriting', 'Approval', 'Disbursement'
-];
-
-const STAGE_BADGES = [
-  'received', 'docreview', 'credit', 'underwriting', 'approved', 'disbursed'
-];
-
-const STAGE_LABELS_FULL = [
-  'Application received', 'Document review', 'Credit assessment',
-  'Underwriting', 'Approval', 'Disbursement'
-];
-
-// ── LOAN SEED DATA ────────────────────────────────────────────────────────────
-let loans = [
-  { id: 1, customerName: 'Margaret Fontenelle', accountNo: 'ACC-004821', officerUsername: 'derick', officerName: 'Derick Hippolyte', branch: 'Castries Main', amount: 75000, type: 'Mortgage',  stage: 4, notes: 'Awaiting final sign-off.', createdAt: '2025-05-10' },
-  { id: 2, customerName: 'Kevin Joseph',        accountNo: 'ACC-003317', officerUsername: 'sandra', officerName: 'Sandra Charles',   branch: 'Vieux Fort',    amount: 25000, type: 'Business',  stage: 2, notes: 'Credit report requested.', createdAt: '2025-05-18' },
-  { id: 3, customerName: 'Alicia Thomas',       accountNo: 'ACC-007104', officerUsername: 'derick', officerName: 'Derick Hippolyte', branch: 'Gros Islet',    amount: 12000, type: 'Personal',  stage: 5, notes: 'Funds disbursed 28 May.', createdAt: '2025-04-02' },
-  { id: 4, customerName: 'Ronnie Baptiste',     accountNo: 'ACC-005592', officerUsername: 'marie',  officerName: 'Marie-Claire Louis', branch: 'Soufrière',   amount: 40000, type: 'Auto',      stage: 1, notes: 'Waiting on payslips.', createdAt: '2025-05-29' },
-  { id: 5, customerName: 'Sheryl Augustin',     accountNo: 'ACC-002980', officerUsername: 'sandra', officerName: 'Sandra Charles',   branch: 'Castries Main', amount: 8500,  type: 'Education', stage: 3, notes: '', createdAt: '2025-05-22' },
-  { id: 6, customerName: 'Paul Emmanuel',       accountNo: 'ACC-008841', officerUsername: 'kevin',  officerName: 'Kevin Augustin',   branch: 'Gros Islet',    amount: 55000, type: 'Mortgage',  stage: 0, notes: 'Application just submitted.', createdAt: '2025-06-01' },
-];
-
-let nextLoanId = 7;
-
-function getLoansByOfficer(username) {
-  return loans.filter(l => l.officerUsername === username);
-}
-
-function getUserByUsername(username) {
-  return USERS.find(u => u.username === username) || null;
-}
-
-function addLoan(data) {
-  const loan = { id: nextLoanId++, ...data, createdAt: new Date().toISOString().slice(0,10) };
-  loans.push(loan);
-  return loan;
-}
-
-function updateLoan(id, data) {
-  const idx = loans.findIndex(l => l.id === id);
-  if (idx === -1) return null;
-  loans[idx] = { ...loans[idx], ...data };
-  return loans[idx];
-}
-
-</script>
 <script>
-// ── AUTH ──────────────────────────────────────────────────────────────────────
-// Simple session stored in sessionStorage.
-// Replace this module with MSAL.js calls once Azure App Registration is set up.
+const USERS=[
+  {id:1,username:'admin',  password:'admin123', displayName:'Admin User',         role:'admin',  branch:'Castries Main'},
+  {id:2,username:'derick', password:'pass123',  displayName:'Derick Hippolyte',   role:'officer',branch:'Castries Main'},
+  {id:3,username:'sandra', password:'pass123',  displayName:'Sandra Charles',     role:'officer',branch:'Vieux Fort'},
+  {id:4,username:'marie',  password:'pass123',  displayName:'Marie-Claire Louis', role:'officer',branch:'Soufriere'},
+  {id:5,username:'kevin',  password:'pass123',  displayName:'Kevin Augustin',     role:'officer',branch:'Gros Islet'}
+];
+const STAGES=['Application','Doc review','Credit check','Underwriting','Approval','Disbursement'];
+const STAGE_FULL=['Application received','Document review','Credit assessment','Underwriting','Approval','Disbursement'];
+const STAGE_BADGE=['received','docreview','credit','underwriting','approved','disbursed'];
+let loans=[
+  {id:1,customerName:'Margaret Fontenelle',accountNo:'ACC-004821',officerUsername:'derick',officerName:'Derick Hippolyte',branch:'Castries Main',amount:75000,type:'Mortgage', stage:4,notes:'Awaiting final sign-off.',createdAt:'2025-05-10'},
+  {id:2,customerName:'Kevin Joseph',       accountNo:'ACC-003317',officerUsername:'sandra',officerName:'Sandra Charles',  branch:'Vieux Fort',   amount:25000,type:'Business', stage:2,notes:'Credit report requested.',createdAt:'2025-05-18'},
+  {id:3,customerName:'Alicia Thomas',      accountNo:'ACC-007104',officerUsername:'derick',officerName:'Derick Hippolyte',branch:'Gros Islet',   amount:12000,type:'Personal', stage:5,notes:'Funds disbursed 28 May.',createdAt:'2025-04-02'},
+  {id:4,customerName:'Ronnie Baptiste',    accountNo:'ACC-005592',officerUsername:'marie', officerName:'Marie-Claire Louis',branch:'Soufriere',  amount:40000,type:'Auto',     stage:1,notes:'Waiting on payslips.',createdAt:'2025-05-29'},
+  {id:5,customerName:'Sheryl Augustin',    accountNo:'ACC-002980',officerUsername:'sandra',officerName:'Sandra Charles',  branch:'Castries Main',amount:8500, type:'Education',stage:3,notes:'',createdAt:'2025-05-22'},
+  {id:6,customerName:'Paul Emmanuel',      accountNo:'ACC-008841',officerUsername:'kevin', officerName:'Kevin Augustin',  branch:'Gros Islet',   amount:55000,type:'Mortgage', stage:0,notes:'Just submitted.',createdAt:'2025-06-01'}
+];
+let nextId=7,editingId=null,currentView='dashboard',stageFilter='all';
 
-const Auth = (() => {
-  const SESSION_KEY = 'meridian_session';
+function initials(n){return n.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();}
+function getUserByUsername(u){return USERS.find(x=>x.username===u)||null;}
 
-  function login(username, password) {
-    const user = getUserByUsername(username.trim().toLowerCase());
-    if (!user || user.password !== password) return null;
-    const session = { userId: user.id, username: user.username, displayName: user.displayName, role: user.role, branch: user.branch };
-    sessionStorage.setItem(SESSION_KEY, JSON.stringify(session));
-    return session;
-  }
+// AUTH
+const Auth={
+  login(u,p){const user=getUserByUsername(u.trim().toLowerCase());if(!user||user.password!==p)return null;const s={userId:user.id,username:user.username,displayName:user.displayName,role:user.role,branch:user.branch};sessionStorage.setItem('msession',JSON.stringify(s));return s;},
+  logout(){sessionStorage.removeItem('msession');},
+  getSession(){try{return JSON.parse(sessionStorage.getItem('msession'));}catch{return null;}},
+  isAdmin(){const s=this.getSession();return s&&s.role==='admin';}
+};
 
-  function logout() {
-    sessionStorage.removeItem(SESSION_KEY);
-  }
+// RENDER
+function renderStats(){
+  const t=loans.length,d=loans.filter(l=>l.stage===5).length,p=loans.filter(l=>l.stage<2).length,a=loans.reduce((s,l)=>s+l.amount,0);
+  document.getElementById('stats-grid').innerHTML=`<div class="stat-card"><div class="stat-label">Total loans</div><div class="stat-val blue">${t}</div></div><div class="stat-card"><div class="stat-label">Disbursed</div><div class="stat-val green">${d}</div></div><div class="stat-card"><div class="stat-label">Pending / new</div><div class="stat-val amber">${p}</div></div><div class="stat-card"><div class="stat-label">Portfolio (XCD)</div><div class="stat-val">${a.toLocaleString()}</div></div>`;
+}
 
-  function getSession() {
-    try { return JSON.parse(sessionStorage.getItem(SESSION_KEY)); }
-    catch { return null; }
-  }
+function loanCard(loan){
+  const track=STAGES.map((s,i)=>{const done=i<loan.stage,cur=i===loan.stage,cls=done?'done':cur?'current':'upcoming',icon=done?'<i class="ti ti-check" style="font-size:10px"></i>':`<span>${i+1}</span>`,line=i<STAGES.length-1?`<div class="pip-line${done?' done':' upcoming'}"></div>`:'';return`<div class="pip-node ${cls}" title="${STAGE_FULL[i]}">${icon}</div>${line}`;}).join('');
+  const labels=STAGES.map((s,i)=>`<div class="pip-label${i<loan.stage?' done':i===loan.stage?' current':''}">${s}</div>`).join('');
+  return`<div class="loan-card" data-id="${loan.id}"><div class="lc-top"><div class="lc-identity"><div class="lc-avatar">${initials(loan.customerName)}</div><div><div class="lc-name">${loan.customerName}</div><div class="lc-meta">${loan.accountNo} &middot; ${loan.type}</div></div></div><div class="lc-right"><div class="lc-amount">XCD ${loan.amount.toLocaleString()}</div><span class="badge ${STAGE_BADGE[loan.stage]}">${STAGE_FULL[loan.stage]}</span></div></div><div class="pipeline"><div class="pipeline-track">${track}</div><div class="pipeline-labels">${labels}</div></div><div class="lc-footer"><div class="lc-foot-item"><i class="ti ti-user"></i>${loan.officerName} <span style="color:var(--gray-400)">(@${loan.officerUsername})</span></div><div class="lc-foot-item"><i class="ti ti-building"></i>${loan.branch}</div><div class="lc-foot-item"><i class="ti ti-calendar"></i>${loan.createdAt}</div>${loan.notes?`<div class="lc-foot-item"><i class="ti ti-notes"></i>${loan.notes}</div>`:''}</div></div>`;
+}
 
-  function isAdmin() {
-    const s = getSession();
-    return s && s.role === 'admin';
-  }
+function renderList(containerId,list){
+  document.getElementById(containerId).innerHTML=list.length?`<div class="loan-list">${list.map(loanCard).join('')}</div>`:'<div class="empty-state"><i class="ti ti-file-off"></i><p>No loans found</p></div>';
+}
 
-  return { login, logout, getSession, isAdmin };
-})();
+function filterLoans(q,stage,officer){
+  let list=loans;
+  if(officer)list=list.filter(l=>l.officerUsername===officer);
+  if(stage&&stage!=='all')list=list.filter(l=>STAGES[l.stage]===stage);
+  if(q)list=list.filter(l=>l.customerName.toLowerCase().includes(q)||l.accountNo.toLowerCase().includes(q)||l.officerName.toLowerCase().includes(q)||l.officerUsername.toLowerCase().includes(q));
+  return list;
+}
 
-</script>
-<script>
-// ── APP ───────────────────────────────────────────────────────────────────────
-(function () {
-  let currentView = 'dashboard';
-  let allLoansFilter = 'all';
-  let editingLoanId = null;
+function renderDashboard(){
+  renderStats();
+  renderList('recent-loans',[...loans].sort((a,b)=>b.id-a.id).slice(0,5));
+}
 
-  // ── INIT ─────────────────────────────────────────────────────────────────
-  function init() {
-    const session = Auth.getSession();
-    if (session) showApp(session);
-    else showLogin();
-    bindEvents();
-  }
+function renderAllLoans(){
+  const chips=['all',...STAGES];
+  document.getElementById('filter-chips').innerHTML=chips.map((c,i)=>`<button class="chip${stageFilter===c?' active':''}" data-filter="${c}">${i===0?'All':c}</button>`).join('');
+  document.querySelectorAll('#filter-chips .chip').forEach(b=>b.addEventListener('click',()=>{stageFilter=b.dataset.filter;renderAllLoans();}));
+  const q=(document.getElementById('search-all').value||'').toLowerCase();
+  renderList('all-loans-list',filterLoans(q,stageFilter,null));
+}
 
-  // ── ROUTING ──────────────────────────────────────────────────────────────
-  function showLogin() {
-    document.getElementById('page-login').classList.add('active');
-    document.getElementById('page-app').classList.remove('active');
-  }
+function renderMyLoans(){
+  const s=Auth.getSession();
+  const q=(document.getElementById('search-my').value||'').toLowerCase();
+  renderList('my-loans-list',filterLoans(q,'all',s.username));
+}
 
-  function showApp(session) {
-    document.getElementById('page-login').classList.remove('active');
-    document.getElementById('page-app').classList.add('active');
-    populateSidebar(session);
-    navigateTo('dashboard');
-  }
+function renderOfficers(){
+  const rows=USERS.filter(u=>u.role==='officer').map(u=>{
+    const c=loans.filter(l=>l.officerUsername===u.username).length;
+    const d=loans.filter(l=>l.officerUsername===u.username&&l.stage===5).length;
+    return`<tr><td><div class="officer-cell"><div class="officer-avatar">${initials(u.displayName)}</div><div><div style="font-weight:600">${u.displayName}</div><div style="font-size:11px;color:var(--gray-400)">@${u.username}</div></div></div></td><td>${u.branch}</td><td>${c}</td><td>${d}</td></tr>`;
+  }).join('');
+  document.getElementById('officers-list').innerHTML=`<div class="officers-table-wrap"><table class="officers-table"><thead><tr><th>Officer</th><th>Branch</th><th>Active loans</th><th>Disbursed</th></tr></thead><tbody>${rows}</tbody></table></div>`;
+}
 
-  function populateSidebar(session) {
-    const initials = session.displayName.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
-    document.getElementById('sidebar-avatar').textContent = initials;
-    document.getElementById('sidebar-name').textContent = session.displayName;
-    document.getElementById('sidebar-role').textContent = session.role === 'admin' ? 'Administrator' : 'Loan Officer · @' + session.username;
-    if (session.role === 'admin') {
-      document.querySelectorAll('.admin-only').forEach(el => el.classList.remove('hidden'));
-    }
-  }
+function navigateTo(view){
+  currentView=view;
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById('view-'+view).classList.add('active');
+  const n=document.querySelector('[data-view="'+view+'"]');if(n)n.classList.add('active');
+  document.getElementById('topbar-title').textContent={dashboard:'Dashboard',loans:'All Loans','my-loans':'My Loans',officers:'Officers'}[view]||'';
+  document.getElementById('sidebar').classList.remove('open');
+  if(view==='dashboard')renderDashboard();
+  else if(view==='loans')renderAllLoans();
+  else if(view==='my-loans')renderMyLoans();
+  else if(view==='officers')renderOfficers();
+}
 
-  function navigateTo(view) {
-    currentView = view;
-    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-    document.getElementById('view-' + view).classList.add('active');
-    const navEl = document.querySelector('[data-view="' + view + '"]');
-    if (navEl) navEl.classList.add('active');
-    const titles = { dashboard: 'Dashboard', loans: 'All Loans', 'my-loans': 'My Loans', officers: 'Officers' };
-    document.getElementById('topbar-title').textContent = titles[view] || '';
-    closeSidebar();
-    renderView(view);
-  }
+function openModal(loan){
+  const s=Auth.getSession();
+  editingId=loan?loan.id:null;
+  document.getElementById('modal-title').textContent=loan?'Update loan':'New loan application';
+  document.getElementById('m-name').value=loan?loan.customerName:'';
+  document.getElementById('m-acct').value=loan?loan.accountNo:'';
+  document.getElementById('m-officer').value=loan?loan.officerName:s.displayName;
+  document.getElementById('m-branch').value=loan?loan.branch:s.branch;
+  document.getElementById('m-amount').value=loan?loan.amount:'';
+  document.getElementById('m-type').value=loan?loan.type:'Personal';
+  document.getElementById('m-stage').value=loan?loan.stage:0;
+  document.getElementById('m-notes').value=loan?loan.notes:'';
+  document.getElementById('loan-modal').classList.remove('hidden');
+}
 
-  // ── RENDER VIEWS ─────────────────────────────────────────────────────────
-  function renderView(view) {
-    if (view === 'dashboard') renderDashboard();
-    else if (view === 'loans') renderAllLoans();
-    else if (view === 'my-loans') renderMyLoans();
-    else if (view === 'officers') renderOfficers();
-  }
+function closeModal(){document.getElementById('loan-modal').classList.add('hidden');editingId=null;}
 
-  function renderDashboard() {
-    const session = Auth.getSession();
-    const total = loans.length;
-    const disbursed = loans.filter(l => l.stage === 5).length;
-    const pending = loans.filter(l => l.stage < 2).length;
-    const totalAmt = loans.reduce((s, l) => s + l.amount, 0);
-    document.getElementById('stats-grid').innerHTML = `
-      <div class="stat-card"><div class="stat-label">Total loans</div><div class="stat-val blue">${total}</div></div>
-      <div class="stat-card"><div class="stat-label">Disbursed</div><div class="stat-val green">${disbursed}</div></div>
-      <div class="stat-card"><div class="stat-label">Pending / new</div><div class="stat-val amber">${pending}</div></div>
-      <div class="stat-card"><div class="stat-label">Portfolio (XCD)</div><div class="stat-val">${totalAmt.toLocaleString()}</div></div>
-    `;
-    const recent = [...loans].sort((a, b) => b.id - a.id).slice(0, 5);
-    document.getElementById('recent-loans').innerHTML = renderLoanList(recent);
-  }
+function saveLoan(){
+  const s=Auth.getSession();
+  const officerName=document.getElementById('m-officer').value.trim();
+  const matched=USERS.find(u=>u.displayName.toLowerCase()===officerName.toLowerCase());
+  const data={customerName:document.getElementById('m-name').value.trim(),accountNo:document.getElementById('m-acct').value.trim(),officerName:officerName,officerUsername:matched?matched.username:s.username,branch:document.getElementById('m-branch').value,amount:parseInt(document.getElementById('m-amount').value)||0,type:document.getElementById('m-type').value,stage:parseInt(document.getElementById('m-stage').value),notes:document.getElementById('m-notes').value.trim()};
+  if(!data.customerName||!data.accountNo||!data.officerName)return;
+  if(editingId){const idx=loans.findIndex(l=>l.id===editingId);if(idx>-1)loans[idx]={...loans[idx],...data};}
+  else{loans.push({id:nextId++,...data,createdAt:new Date().toISOString().slice(0,10)});}
+  closeModal();navigateTo(currentView);
+}
 
-  function renderAllLoans() {
-    const chips = ['all', ...STAGES];
-    const chipLabels = ['All', ...STAGES];
-    document.getElementById('filter-chips').innerHTML = chips.map((c, i) =>
-      `<button class="chip${allLoansFilter === c ? ' active' : ''}" data-filter="${c}">${chipLabels[i]}</button>`
-    ).join('');
-    document.querySelectorAll('#filter-chips .chip').forEach(btn =>
-      btn.addEventListener('click', () => { allLoansFilter = btn.dataset.filter; renderAllLoans(); })
-    );
-    applySearchAndRender('all-loans-list', 'search-all', allLoansFilter);
-    document.getElementById('search-all').addEventListener('input', () =>
-      applySearchAndRender('all-loans-list', 'search-all', allLoansFilter)
-    );
-  }
+function showApp(session){
+  document.getElementById('page-login').classList.remove('active');
+  document.getElementById('page-app').classList.add('active');
+  const av=session.displayName.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+  document.getElementById('sidebar-avatar').textContent=av;
+  document.getElementById('sidebar-name').textContent=session.displayName;
+  document.getElementById('sidebar-role').textContent=session.role==='admin'?'Administrator':'Loan Officer · @'+session.username;
+  if(session.role==='admin')document.querySelectorAll('.admin-only').forEach(el=>el.classList.remove('hidden'));
+  navigateTo('dashboard');
+}
 
-  function renderMyLoans() {
-    const session = Auth.getSession();
-    applySearchAndRender('my-loans-list', 'search-my', 'all', session.username);
-    document.getElementById('search-my').addEventListener('input', () =>
-      applySearchAndRender('my-loans-list', 'search-my', 'all', session.username)
-    );
-  }
+// EVENTS
+document.getElementById('btn-login').addEventListener('click',()=>{
+  const u=document.getElementById('login-username').value;
+  const p=document.getElementById('login-password').value;
+  const s=Auth.login(u,p);
+  const err=document.getElementById('login-error');
+  if(!s){err.textContent='Invalid username or password.';err.classList.remove('hidden');}
+  else{err.classList.add('hidden');showApp(s);}
+});
+document.getElementById('login-password').addEventListener('keydown',e=>{if(e.key==='Enter')document.getElementById('btn-login').click();});
+document.getElementById('btn-logout').addEventListener('click',()=>{Auth.logout();document.getElementById('page-app').classList.remove('active');document.getElementById('page-login').classList.add('active');});
+document.querySelectorAll('.nav-item').forEach(item=>item.addEventListener('click',e=>{e.preventDefault();navigateTo(item.dataset.view);}));
+document.getElementById('btn-new-loan').addEventListener('click',()=>openModal(null));
+document.getElementById('modal-close').addEventListener('click',closeModal);
+document.getElementById('modal-cancel').addEventListener('click',closeModal);
+document.getElementById('modal-save').addEventListener('click',saveLoan);
+document.getElementById('loan-modal').addEventListener('click',e=>{if(e.target===e.currentTarget)closeModal();});
+document.addEventListener('click',e=>{const c=e.target.closest('.loan-card');if(c){const loan=loans.find(l=>l.id===parseInt(c.dataset.id));if(loan)openModal(loan);}});
+document.getElementById('hamburger').addEventListener('click',()=>document.getElementById('sidebar').classList.add('open'));
+document.getElementById('sidebar-close').addEventListener('click',()=>document.getElementById('sidebar').classList.remove('open'));
+document.getElementById('search-all').addEventListener('input',renderAllLoans);
+document.getElementById('search-my').addEventListener('input',renderMyLoans);
 
-  function applySearchAndRender(containerId, searchId, stageFilter, officerFilter) {
-    const q = (document.getElementById(searchId).value || '').toLowerCase();
-    let list = loans;
-    if (officerFilter) list = list.filter(l => l.officerUsername === officerFilter);
-    if (stageFilter && stageFilter !== 'all') list = list.filter(l => STAGES[l.stage] === stageFilter);
-    if (q) list = list.filter(l =>
-      l.customerName.toLowerCase().includes(q) ||
-      l.accountNo.toLowerCase().includes(q) ||
-      l.officerName.toLowerCase().includes(q) ||
-      l.officerUsername.toLowerCase().includes(q)
-    );
-    document.getElementById(containerId).innerHTML = list.length
-      ? renderLoanList(list)
-      : `<div class="empty-state"><i class="ti ti-file-off"></i><p>No loans found</p></div>`;
-  }
-
-  function renderOfficers() {
-    const rows = USERS.filter(u => u.role === 'officer').map(u => {
-      const count = loans.filter(l => l.officerUsername === u.username).length;
-      const disbursedCount = loans.filter(l => l.officerUsername === u.username && l.stage === 5).length;
-      const initials = u.displayName.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
-      return `<tr>
-        <td><div class="officer-cell">
-          <div class="officer-avatar">${initials}</div>
-          <div>
-            <div style="font-weight:600">${u.displayName}</div>
-            <div style="font-size:11px;color:var(--gray-400)">@${u.username}</div>
-          </div>
-        </div></td>
-        <td>${u.branch}</td>
-        <td>${count}</td>
-        <td>${disbursedCount}</td>
-      </tr>`;
-    }).join('');
-    document.getElementById('officers-list').innerHTML = `
-      <div class="officers-table-wrap">
-        <table class="officers-table">
-          <thead><tr><th>Officer</th><th>Branch</th><th>Active loans</th><th>Disbursed</th></tr></thead>
-          <tbody>${rows}</tbody>
-        </table>
-      </div>`;
-  }
-
-  // ── LOAN CARD HTML ────────────────────────────────────────────────────────
-  function renderLoanList(list) {
-    return `<div class="loan-list">${list.map(loanCard).join('')}</div>`;
-  }
-
-  function loanCard(loan) {
-    const pipelineHTML = STAGES.map((s, i) => {
-      const done = i < loan.stage;
-      const current = i === loan.stage;
-      const nodeCls = done ? 'done' : current ? 'current' : 'upcoming';
-      const labelCls = done ? 'done' : current ? 'current' : '';
-      const icon = done ? '<i class="ti ti-check" style="font-size:10px"></i>' : `<span>${i + 1}</span>`;
-      const line = i < STAGES.length - 1
-        ? `<div class="pip-line${done ? ' done' : ' upcoming'}"></div>`
-        : '';
-      return `<div class="pip-node ${nodeCls}" title="${STAGE_LABELS_FULL[i]}">${icon}</div>${line}`;
-    }).join('');
-
-    const labelHTML = STAGES.map((s, i) => {
-      const cls = i < loan.stage ? 'done' : i === loan.stage ? 'current' : '';
-      return `<div class="pip-label ${cls}">${s}</div>`;
-    }).join('');
-
-    const badgeCls = STAGE_BADGES[loan.stage];
-    const badgeLabel = STAGE_LABELS_FULL[loan.stage];
-
-    return `<div class="loan-card" data-id="${loan.id}">
-      <div class="lc-top">
-        <div class="lc-identity">
-          <div class="lc-avatar">${initials(loan.customerName)}</div>
-          <div>
-            <div class="lc-name">${loan.customerName}</div>
-            <div class="lc-meta">${loan.accountNo} &nbsp;·&nbsp; ${loan.type}</div>
-          </div>
-        </div>
-        <div class="lc-right">
-          <div class="lc-amount">XCD ${loan.amount.toLocaleString()}</div>
-          <span class="badge ${badgeCls}">${badgeLabel}</span>
-        </div>
-      </div>
-      <div class="pipeline">
-        <div class="pipeline-track">${pipelineHTML}</div>
-        <div class="pipeline-labels">${labelHTML}</div>
-      </div>
-      <div class="lc-footer">
-        <div class="lc-foot-item"><i class="ti ti-user" aria-hidden="true"></i>${loan.officerName} <span style="color:var(--gray-400)">(@${loan.officerUsername})</span></div>
-        <div class="lc-foot-item"><i class="ti ti-building" aria-hidden="true"></i>${loan.branch}</div>
-        <div class="lc-foot-item"><i class="ti ti-calendar" aria-hidden="true"></i>${loan.createdAt}</div>
-        ${loan.notes ? `<div class="lc-foot-item"><i class="ti ti-notes" aria-hidden="true"></i>${loan.notes}</div>` : ''}
-      </div>
-    </div>`;
-  }
-
-  function initials(name) {
-    return name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
-  }
-
-  // ── MODAL ─────────────────────────────────────────────────────────────────
-  function openModal(loan) {
-    editingLoanId = loan ? loan.id : null;
-    const session = Auth.getSession();
-    document.getElementById('modal-title').textContent = loan ? 'Update loan' : 'New loan application';
-    document.getElementById('m-name').value = loan ? loan.customerName : '';
-    document.getElementById('m-acct').value = loan ? loan.accountNo : '';
-    document.getElementById('m-officer').value = loan ? loan.officerName : session.displayName;
-    document.getElementById('m-branch').value = loan ? loan.branch : session.branch;
-    document.getElementById('m-amount').value = loan ? loan.amount : '';
-    document.getElementById('m-type').value = loan ? loan.type : 'Personal';
-    document.getElementById('m-stage').value = loan ? loan.stage : '0';
-    document.getElementById('m-notes').value = loan ? loan.notes : '';
-    document.getElementById('loan-modal').classList.remove('hidden');
-  }
-
-  function closeModal() {
-    document.getElementById('loan-modal').classList.add('hidden');
-    editingLoanId = null;
-  }
-
-  function saveLoan() {
-    const session = Auth.getSession();
-    const officerName = document.getElementById('m-officer').value.trim();
-    // resolve username from officer name if possible
-    const matchedUser = USERS.find(u => u.displayName.toLowerCase() === officerName.toLowerCase());
-    const data = {
-      customerName: document.getElementById('m-name').value.trim(),
-      accountNo: document.getElementById('m-acct').value.trim(),
-      officerName: officerName,
-      officerUsername: matchedUser ? matchedUser.username : session.username,
-      branch: document.getElementById('m-branch').value,
-      amount: parseInt(document.getElementById('m-amount').value) || 0,
-      type: document.getElementById('m-type').value,
-      stage: parseInt(document.getElementById('m-stage').value),
-      notes: document.getElementById('m-notes').value.trim(),
-    };
-    if (!data.customerName || !data.accountNo || !data.officerName) return;
-    if (editingLoanId) updateLoan(editingLoanId, data);
-    else addLoan(data);
-    closeModal();
-    renderView(currentView);
-  }
-
-  // ── SIDEBAR MOBILE ────────────────────────────────────────────────────────
-  function openSidebar() { document.getElementById('sidebar').classList.add('open'); }
-  function closeSidebar() { document.getElementById('sidebar').classList.remove('open'); }
-
-  // ── EVENTS ────────────────────────────────────────────────────────────────
-  function bindEvents() {
-    // login
-    document.getElementById('btn-login').addEventListener('click', handleLogin);
-    document.getElementById('login-password').addEventListener('keydown', e => { if (e.key === 'Enter') handleLogin(); });
-
-    // logout
-    document.getElementById('btn-logout').addEventListener('click', () => { Auth.logout(); showLogin(); });
-
-    // nav
-    document.querySelectorAll('.nav-item').forEach(item =>
-      item.addEventListener('click', e => { e.preventDefault(); navigateTo(item.dataset.view); })
-    );
-
-    // modal
-    document.getElementById('btn-new-loan').addEventListener('click', () => openModal(null));
-    document.getElementById('modal-close').addEventListener('click', closeModal);
-    document.getElementById('modal-cancel').addEventListener('click', closeModal);
-    document.getElementById('modal-save').addEventListener('click', saveLoan);
-    document.getElementById('loan-modal').addEventListener('click', e => { if (e.target === e.currentTarget) closeModal(); });
-
-    // loan card click (delegate)
-    document.addEventListener('click', e => {
-      const card = e.target.closest('.loan-card');
-      if (card) {
-        const loan = loans.find(l => l.id === parseInt(card.dataset.id));
-        if (loan) openModal(loan);
-      }
-    });
-
-    // sidebar mobile
-    document.getElementById('hamburger').addEventListener('click', openSidebar);
-    document.getElementById('sidebar-close').addEventListener('click', closeSidebar);
-  }
-
-  function handleLogin() {
-    const username = document.getElementById('login-username').value;
-    const password = document.getElementById('login-password').value;
-    const session = Auth.login(username, password);
-    const err = document.getElementById('login-error');
-    if (!session) {
-      err.textContent = 'Invalid username or password. Please try again.';
-      err.classList.remove('hidden');
-    } else {
-      err.classList.add('hidden');
-      showApp(session);
-    }
-  }
-
-  init();
-})();
-
+// Init
+const existing=Auth.getSession();
+if(existing)showApp(existing);
 </script>
 </body>
 </html>
