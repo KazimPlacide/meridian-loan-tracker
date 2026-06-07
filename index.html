@@ -259,7 +259,7 @@ const Auth={
 // RENDER
 function renderStats(){
   const t=loans.length,d=loans.filter(l=>l.stage===5).length,p=loans.filter(l=>l.stage<2).length,a=loans.reduce((s,l)=>s+l.amount,0);
-  document.getElementById('stats-grid').innerHTML=`<div class="stat-card"><div class="stat-label">Total loans</div><div class="stat-val blue">${t}</div></div><div class="stat-card"><div class="stat-label">Disbursed</div><div class="stat-val green">${d}</div></div><div class="stat-card"><div class="stat-label">Pending / new</div><div class="stat-val amber">${p}</div></div><div class="stat-card"><div class="stat-label">Portfolio (XCD)</div><div class="stat-val">${a.toLocaleString()}</div></div>`;
+  document.getElementById('stats-grid').innerHTML=`<div class="stat-card"><div class="stat-label">Total loans</div><div class="stat-val blue">${t}</div></div><div class="stat-card"><div class="stat-label">Disbursed</div><div class="stat-val green">${d}</div></div><div class="stat-card"><div class="stat-label">Pending / new</div><div class="stat-val amber">${p}</div></div><div class="stat-card"><div class="stat-label">Total (XCD)</div><div class="stat-val">${a.toLocaleString()}</div></div>`;
 }
 
 function loanCard(loan){
