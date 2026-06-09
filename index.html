@@ -290,6 +290,39 @@ body{min-height:100vh}
   </div>
 </div>
 
+<div id="notify-dialog" class="confirm-overlay hidden">
+  <div class="modal" style="max-width:500px">
+    <div class="modal-header">
+      <div style="display:flex;align-items:center;gap:10px">
+        <div style="width:36px;height:36px;border-radius:50%;background:var(--green-bg);display:flex;align-items:center;justify-content:center">
+          <i class="ti ti-circle-check" style="color:var(--green-txt);font-size:20px"></i>
+        </div>
+        <div>
+          <h3 style="font-size:15px;font-weight:600">Loan Approved!</h3>
+          <div style="font-size:12px;color:var(--gray-400)">Notify the member?</div>
+        </div>
+      </div>
+      <button class="modal-close" id="notify-close"><i class="ti ti-x"></i></button>
+    </div>
+    <div class="modal-body" style="padding:1.25rem 1.5rem">
+      <div class="field">
+        <label>Message to member <span style="font-weight:400;color:var(--gray-400)">(edit before copying)</span></label>
+        <textarea id="notify-message" rows="6" style="font-size:13px;line-height:1.6"></textarea>
+      </div>
+      <div id="notify-log-badge" class="hidden" style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--green-txt);background:var(--green-bg);padding:7px 10px;border-radius:6px;margin-top:.5rem">
+        <i class="ti ti-check"></i> Notification logged successfully
+      </div>
+    </div>
+    <div class="modal-footer" style="justify-content:space-between">
+      <button class="btn-secondary" id="notify-skip">Skip — notify later</button>
+      <div style="display:flex;gap:8px">
+        <button class="btn-secondary" id="notify-copy" style="display:flex;align-items:center;gap:5px"><i class="ti ti-copy"></i> Copy message</button>
+        <button class="btn-primary" id="notify-log" style="display:flex;align-items:center;gap:5px"><i class="ti ti-check"></i> Log as notified</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script>
 const USERS=[
   {id:1,username:'admin',  password:'admin123', displayName:'Admin User',         role:'admin',  branch:'Soufriere'},
@@ -310,6 +343,7 @@ let loans=[
   {id:6,memberName:'Paul Emmanuel',      accountNo:'ACC-008841',officerUsername:'kevin', officerName:'Kevin Augustin',  branch:'Gros Islet',   amount:55000,type:'Mortgage', stage:0,notes:'Just submitted.',createdAt:'2025-06-01'}
 ];
 let nextId=7,editingId=null,currentView='dashboard',stageFilter='all';
+let auditLog=[];
 
 function initials(n){return n.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();}
 function getUserByUsername(u){return USERS.find(x=>x.username===u)||null;}
@@ -422,9 +456,49 @@ function saveLoan(){
   const matched=USERS.find(u=>u.displayName.toLowerCase()===officerName.toLowerCase());
   const data={memberName:document.getElementById('m-name').value.trim(),accountNo:document.getElementById('m-acct').value.trim(),officerName:officerName,officerUsername:matched?matched.username:s.username,branch:document.getElementById('m-branch').value,amount:parseInt(document.getElementById('m-amount').value)||0,type:document.getElementById('m-type').value,stage:parseInt(document.getElementById('m-stage').value),notes:document.getElementById('m-notes').value.trim()};
   if(!data.memberName||!data.accountNo||!data.officerName)return;
+
+  const prevStage = editingId ? (loans.find(l=>l.id===editingId)||{}).stage : -1;
+
   if(editingId){const idx=loans.findIndex(l=>l.id===editingId);if(idx>-1)loans[idx]={...loans[idx],...data};}
   else{loans.push({id:nextId++,...data,createdAt:new Date().toISOString().slice(0,10)});}
-  closeModal();navigateTo(currentView);
+
+  closeModal();
+  navigateTo(currentView);
+
+  // Trigger notification prompt if stage just moved to Approval (stage 4)
+  if(data.stage===4 && prevStage!==4){
+    showNotifyDialog(data, s);
+  }
+}
+
+function showNotifyDialog(loan, session){
+  const amount = parseFloat(loan.amount).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+  const msg =
+`Dear ${loan.memberName},
+
+We are pleased to inform you that your loan application (Account #: ${loan.accountNo}) for XCD ${amount} has been approved by the ${loan.branch} branch of the Choiseul Co-operative Credit Union Limited.
+
+Please visit our ${loan.branch} branch at your earliest convenience to complete the necessary documentation and finalize the process.
+
+Should you have any questions, do not hesitate to contact us.
+
+Sincerely,
+${session.displayName}
+Loans Officer — ${loan.branch} Branch
+Choiseul Co-operative Credit Union Limited`;
+
+  document.getElementById('notify-message').value = msg;
+  document.getElementById('notify-log-badge').classList.add('hidden');
+  document.getElementById('notify-dialog').classList.remove('hidden');
+
+  // Store loan ref for logging
+  document.getElementById('notify-dialog').dataset.loanAcct = loan.accountNo;
+  document.getElementById('notify-dialog').dataset.memberName = loan.memberName;
+  document.getElementById('notify-dialog').dataset.officer = session.displayName;
+}
+
+function closeNotify(){
+  document.getElementById('notify-dialog').classList.add('hidden');
 }
 
 function showApp(session){
@@ -601,6 +675,32 @@ document.getElementById('confirm-ok').addEventListener('click',()=>{
   document.getElementById('confirm-dialog').classList.add('hidden');
   closeModal();
   navigateTo(currentView);
+});
+
+// Notification dialog events
+document.getElementById('notify-close').addEventListener('click', closeNotify);
+document.getElementById('notify-skip').addEventListener('click', closeNotify);
+document.getElementById('notify-copy').addEventListener('click', ()=>{
+  const msg = document.getElementById('notify-message').value;
+  navigator.clipboard.writeText(msg).then(()=>{
+    const btn = document.getElementById('notify-copy');
+    btn.innerHTML = '<i class="ti ti-check"></i> Copied!';
+    setTimeout(()=>{ btn.innerHTML = '<i class="ti ti-copy"></i> Copy message'; }, 2000);
+  });
+});
+document.getElementById('notify-log').addEventListener('click', ()=>{
+  const dialog = document.getElementById('notify-dialog');
+  const acct = dialog.dataset.loanAcct;
+  const member = dialog.dataset.memberName;
+  const officer = dialog.dataset.officer;
+  const timestamp = new Date().toLocaleString();
+  // Log to audit trail
+  auditLog.push({ timestamp, officer, action: `Notified member ${member} (${acct}) of loan approval`, type: 'notification' });
+  document.getElementById('notify-log-badge').classList.remove('hidden');
+  document.getElementById('notify-log-badge').style.display = 'flex';
+  document.getElementById('notify-log').disabled = true;
+  document.getElementById('notify-log').innerHTML = '<i class="ti ti-check"></i> Logged';
+  setTimeout(closeNotify, 1500);
 });
 document.getElementById('loan-modal').addEventListener('click',e=>{if(e.target===e.currentTarget)closeModal();});
 document.addEventListener('click',e=>{const c=e.target.closest('.loan-card');if(c){const loan=loans.find(l=>l.id===parseInt(c.dataset.id));if(loan)openModal(loan);}});
