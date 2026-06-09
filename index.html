@@ -518,7 +518,7 @@ function initPdfUpload() {
       fullText += content.items.map(item => item.str).join(' ') + '\n';
     }
 
-    // Pattern matching based on your PDF format
+    // Pattern matching based on CCCUL loan application form
     const get = (patterns) => {
       for (const pattern of patterns) {
         const match = fullText.match(pattern);
@@ -527,35 +527,35 @@ function initPdfUpload() {
       return '';
     };
 
+    // Member Name = "Name:" in Borrower Information section
     const memberName = get([
-      /Member\s*Name\s*[:\-]\s*([^\n\r$]+)/i,
-      /Name\s*[:\-]\s*([^\n\r$]+)/i,
-      /Applicant\s*[:\-]\s*([^\n\r$]+)/i,
+      /\bName:\s*([A-Za-z][^\n\r$#:]{2,40}?)(?:\s{2,}|\s*Name:|\s*D\.O\.B)/i,
+      /Borrower\s+(?:Name|II)[^\n]*\n[^\n]*Name:\s*([^\n\r:$]{3,40})/i,
+      /Name:\s*([A-Za-z][^\n\r$#:]{2,40})/i,
     ]);
 
+    // Account # = "Account #:"
     const accountNo = get([
-      /Account\s*(?:Number|No\.?|#)\s*[:\-]\s*([^\n\r$\s]+)/i,
-      /Acc\.?\s*(?:Number|No\.?|#)\s*[:\-]\s*([^\n\r$\s]+)/i,
+      /Account\s*#\s*[:\-]?\s*([A-Za-z0-9\-\/]+)/i,
     ]);
 
+    // Loan Amount = "Loan Request $"
     const amountRaw = get([
-      /Loan\s*Amount\s*[:\-]\s*\$?([\d,\.]+)/i,
-      /Amount\s*(?:Requested)?\s*[:\-]\s*\$?([\d,\.]+)/i,
+      /Loan\s*Request\s*\$?\s*([\d,\.]+)/i,
+      /Loan\s*Amount\s*\$?\s*([\d,\.]+)/i,
     ]);
     const amount = amountRaw ? parseFloat(amountRaw.replace(/,/g, '')) : 0;
 
-    const loanTypeRaw = get([
-      /Loan\s*Type\s*[:\-]\s*([^\n\r$]+)/i,
-      /Type\s*of\s*Loan\s*[:\-]\s*([^\n\r$]+)/i,
+    // Loan Type = "Purpose:"
+    const purposeRaw = get([
+      /Purpose\s*[:\-]\s*([^\n\r$]{2,40})/i,
     ]);
     const loanTypes = ['Personal','Mortgage','Business','Auto','Education'];
-    const loanType = loanTypes.find(t => loanTypeRaw.toLowerCase().includes(t.toLowerCase())) || loanTypeRaw;
+    const loanType = loanTypes.find(t => purposeRaw.toLowerCase().includes(t.toLowerCase())) || 'Personal';
 
-    const branchRaw = get([
-      /Branch\s*[:\-]\s*([^\n\r$]+)/i,
-    ]);
-    const branches = ['Choiseul','Soufriere'];
-    const branch = branches.find(b => branchRaw.toLowerCase().includes(b.toLowerCase())) || '';
+    // Branch = always Choiseul for this form (CCCUL), or detect from header
+    const branchRaw = fullText.match(/CHOISEUL/i) ? 'Choiseul' : (fullText.match(/SOUFRIERE/i) ? 'Soufriere' : '');
+    const branch = branchRaw;
 
     return { memberName, accountNo, amount, loanType, branch };
   }
