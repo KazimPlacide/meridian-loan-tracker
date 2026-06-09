@@ -527,35 +527,34 @@ function initPdfUpload() {
       return '';
     };
 
-    // Member Name = "Name:" in Borrower Information section
+    // Member Name = borrower name appears at top of form on signature line
     const memberName = get([
-      /\bName:\s*([A-Za-z][^\n\r$#:]{2,40}?)(?:\s{2,}|\s*Name:|\s*D\.O\.B)/i,
-      /Borrower\s+(?:Name|II)[^\n]*\n[^\n]*Name:\s*([^\n\r:$]{3,40})/i,
-      /Name:\s*([A-Za-z][^\n\r$#:]{2,40})/i,
+      /^([A-Za-z]+\s+[A-Za-z]+(?:\s+[A-Za-z]+)?)\s*\n?\s*Borrower/im,
+      /Borrower\s*\n\s*Name:\s*([A-Za-z][^\n\r:$]{2,40})/i,
+      /Name:\s*(john|[A-Z][a-z]+)\s+([A-Z]?[a-z]+)/i,
     ]);
 
-    // Account # = "Account #:"
+    // Account # = "Account #: 1234"
     const accountNo = get([
       /Account\s*#\s*[:\-]?\s*([A-Za-z0-9\-\/]+)/i,
     ]);
 
-    // Loan Amount = "Loan Request $"
+    // Loan Amount = "Loan Request $ 109,582.00"
     const amountRaw = get([
       /Loan\s*Request\s*\$?\s*([\d,\.]+)/i,
-      /Loan\s*Amount\s*\$?\s*([\d,\.]+)/i,
+      /\$\s*([\d]{1,3}(?:,\d{3})*(?:\.\d{2})?)\s/,
     ]);
     const amount = amountRaw ? parseFloat(amountRaw.replace(/,/g, '')) : 0;
 
-    // Loan Type = "Purpose:"
+    // Loan Type = "Purpose: personal"
     const purposeRaw = get([
-      /Purpose\s*[:\-]\s*([^\n\r$]{2,40})/i,
+      /Purpose\s*[:\-]?\s*([^\n\r$]{2,30})/i,
     ]);
-    const loanTypes = ['Personal','Mortgage','Business','Auto','Education'];
+    const loanTypes = ['Personal','Mortgage','Business','Auto','Education','Consumer','Vehicle'];
     const loanType = loanTypes.find(t => purposeRaw.toLowerCase().includes(t.toLowerCase())) || 'Personal';
 
-    // Branch = always Choiseul for this form (CCCUL), or detect from header
-    const branchRaw = fullText.match(/CHOISEUL/i) ? 'Choiseul' : (fullText.match(/SOUFRIERE/i) ? 'Soufriere' : '');
-    const branch = branchRaw;
+    // Branch = detect from header
+    const branch = /CHOISEUL/i.test(fullText) ? 'Choiseul' : (/SOUFRIERE/i.test(fullText) ? 'Soufriere' : '');
 
     return { memberName, accountNo, amount, loanType, branch };
   }
