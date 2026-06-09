@@ -519,6 +519,8 @@ function initPdfUpload() {
     }
     console.log('=== RAW PDF TEXT ===');
     console.log(fullText.slice(0, 2000));
+    console.log('=== LAST 500 CHARS ===');
+    console.log(JSON.stringify(fullText.slice(-500)));
     console.log('=== END ===');
     console.log('=== RAW PDF TEXT ===');
     console.log(fullText);
