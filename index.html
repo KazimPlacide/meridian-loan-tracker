@@ -535,30 +535,22 @@ function initPdfUpload() {
       return '';
     };
 
-    // All filled values appear at the end of page 1 in one line:
-    // "john harry 1234 109,582.00 john harry 0 0 4 personal 0.00..."
-    // Extract from that data line directly
-
-    // Get the tail of the text where filled values are
+    // Data line format: "john harry  1234  109,582.00  john harry  0   0  4  personal  0.00..."
     const dataLine = fullText.slice(fullText.lastIndexOf('No. yrs ') + 8).trim();
     console.log('DATA LINE:', dataLine);
 
-    // Member name = first words before the account number (digits)
-    const nameMatch = dataLine.match(/^([A-Za-z]+(?:\s+[A-Za-z]+)+?)\s+(\d+)\s+([\d,\.]+)/);
+    const nameMatch = dataLine.match(/^([A-Za-z]+(?:\s+[A-Za-z]+)+?)\s{2,}(\d+)\s{2,}([\d,\.]+)/);
     const memberName = nameMatch ? nameMatch[1].trim() : '';
     const accountNo  = nameMatch ? nameMatch[2].trim() : '';
     const amountRaw  = nameMatch ? nameMatch[3].trim() : '0';
     const amount = parseFloat(amountRaw.replace(/,/g, '')) || 0;
 
-    // Loan type = "personal" appears after "john harry 0 0 4"
-    const purposeRaw = get([
-      /\d+\s+([a-zA-Z]+)\s+0\.00/,   // number then loan type then 0.00
-      /Purpose\s*[:\-]?\s*([^\n\r$]{2,30})/i,
-    ]);
+    // Loan type comes after "4  personal" — grab word after one or more digits + spaces
+    const purposeMatch = dataLine.match(/\b4\s{2,}([a-zA-Z]+)\s/);
+    const purposeRaw = purposeMatch ? purposeMatch[1] : '';
     const loanTypes = ['Personal','Mortgage','Business','Auto','Education','Consumer','Vehicle'];
-    const loanType = loanTypes.find(t => purposeRaw.toLowerCase().includes(t.toLowerCase())) || 'Personal';
+    const loanType = loanTypes.find(t => purposeRaw.toLowerCase() === t.toLowerCase()) || 'Personal';
 
-    // Branch from header
     const branch = /CHOISEUL/i.test(fullText) ? 'Choiseul' : (/SOUFRIERE/i.test(fullText) ? 'Soufriere' : '');
 
     return { memberName, accountNo, amount, loanType, branch };
