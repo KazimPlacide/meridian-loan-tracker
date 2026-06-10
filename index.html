@@ -152,20 +152,6 @@ body{min-height:100vh}
 .pdf-error{background:var(--red-bg);color:var(--red-txt);border-radius:6px;padding:9px 12px;font-size:12px;margin-bottom:.75rem}
 .modal-divider{display:flex;align-items:center;gap:10px;margin:.75rem 0;color:var(--gray-400);font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:.05em}
 .modal-divider::before,.modal-divider::after{content:'';flex:1;height:1px;background:var(--gray-200)}
-.audit-table-wrap{background:#fff;border:1px solid var(--gray-100);border-radius:14px;overflow:hidden}
-.audit-table{width:100%;border-collapse:collapse;font-size:13px}
-.audit-table th{padding:10px 14px;text-align:left;font-size:11px;font-weight:600;color:var(--gray-400);text-transform:uppercase;letter-spacing:.04em;border-bottom:1px solid var(--gray-100);background:var(--gray-50)}
-.audit-table td{padding:10px 14px;border-bottom:1px solid var(--gray-100);vertical-align:middle}
-.audit-table tr:last-child td{border-bottom:none}
-.audit-table tr:hover td{background:var(--gray-50)}
-.audit-type{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:20px;font-size:11px;font-weight:500}
-.audit-type.create{background:var(--blue-50);color:var(--blue-700)}
-.audit-type.update{background:var(--amber-bg);color:var(--amber-txt)}
-.audit-type.delete{background:var(--red-bg);color:var(--red-txt)}
-.audit-type.notification{background:var(--green-bg);color:var(--green-txt)}
-.audit-type.stage{background:var(--purple-bg);color:var(--purple-txt)}
-.audit-empty{text-align:center;padding:3rem 1rem;color:var(--gray-400)}
-.audit-empty i{font-size:36px;display:block;margin-bottom:8px}
 </style>
 </head>
 <body>
@@ -196,7 +182,6 @@ body{min-height:100vh}
       <a href="#" class="nav-item" data-view="loans"><i class="ti ti-file-dollar"></i> All Loans</a>
       <a href="#" class="nav-item" data-view="my-loans"><i class="ti ti-user-check"></i> My Loans</a>
       <a href="#" class="nav-item admin-only hidden" data-view="officers"><i class="ti ti-users"></i> Officers</a>
-      <a href="#" class="nav-item admin-only hidden" data-view="audit"><i class="ti ti-clipboard-list"></i> Audit Log</a>
     </nav>
     <div class="sidebar-footer">
       <div class="user-pill">
@@ -206,7 +191,7 @@ body{min-height:100vh}
           <div class="user-role" id="sidebar-role"></div>
         </div>
       </div>
-      <button class="btn-logout" id="btn-logout-sidebar" title="Sign out"><i class="ti ti-logout"></i></button>
+      <button class="btn-logout" id="btn-logout" title="Sign out"><i class="ti ti-logout"></i></button>
     </div>
   </aside>
 
@@ -241,13 +226,6 @@ body{min-height:100vh}
     </div>
     <div id="view-officers" class="view">
       <div id="officers-list"></div>
-    </div>
-    <div id="view-audit" class="view">
-      <div class="toolbar">
-        <div class="search-bar"><i class="ti ti-search"></i><input type="text" id="search-audit" placeholder="Search by officer, action, loan..."/></div>
-        <div class="filter-chips" id="audit-filter-chips"></div>
-      </div>
-      <div id="audit-list"></div>
     </div>
   </main>
 </div>
@@ -364,7 +342,7 @@ let loans=[
   {id:5,memberName:'Sheryl Augustin',    accountNo:'ACC-002980',officerUsername:'sandra',officerName:'Sandra Charles',  branch:'Castries Main',amount:8500, type:'Education',stage:3,notes:'',createdAt:'2025-05-22'},
   {id:6,memberName:'Paul Emmanuel',      accountNo:'ACC-008841',officerUsername:'kevin', officerName:'Kevin Augustin',  branch:'Gros Islet',   amount:55000,type:'Mortgage', stage:0,notes:'Just submitted.',createdAt:'2025-06-01'}
 ];
-let nextId=7,editingId=null,currentView='dashboard',stageFilter='all',auditTypeFilter='all';
+let nextId=7,editingId=null,currentView='dashboard',stageFilter='all';
 let auditLog=[];
 
 function initials(n){return n.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();}
@@ -442,7 +420,6 @@ function navigateTo(view){
   else if(view==='loans')renderAllLoans();
   else if(view==='my-loans')renderMyLoans();
   else if(view==='officers')renderOfficers();
-  else if(view==='audit'){renderAudit();document.getElementById('search-audit').addEventListener('input',renderAudit);}
 }
 
 function resetPdfUpload() {
@@ -481,19 +458,9 @@ function saveLoan(){
   if(!data.memberName||!data.accountNo||!data.officerName)return;
 
   const prevStage = editingId ? (loans.find(l=>l.id===editingId)||{}).stage : -1;
-  const isNew = !editingId;
 
   if(editingId){const idx=loans.findIndex(l=>l.id===editingId);if(idx>-1)loans[idx]={...loans[idx],...data};}
   else{loans.push({id:nextId++,...data,createdAt:new Date().toISOString().slice(0,10)});}
-
-  // Audit log entry
-  if(isNew){
-    logAudit(s.displayName, 'create', `Created loan for ${data.memberName} (${data.accountNo}) — ${data.type} XCD ${data.amount.toLocaleString()}`);
-  } else if(data.stage !== prevStage){
-    logAudit(s.displayName, 'stage', `Moved ${data.memberName} (${data.accountNo}) from "${STAGE_FULL[prevStage]}" to "${STAGE_FULL[data.stage]}"`);
-  } else {
-    logAudit(s.displayName, 'update', `Updated loan for ${data.memberName} (${data.accountNo})`);
-  }
 
   closeModal();
   navigateTo(currentView);
@@ -534,53 +501,7 @@ function closeNotify(){
   document.getElementById('notify-dialog').classList.add('hidden');
 }
 
-function logAudit(officer, type, action){
-  auditLog.unshift({
-    id: Date.now(),
-    timestamp: new Date().toLocaleString('en-US',{year:'numeric',month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'}),
-    officer,
-    type,
-    action
-  });
-}
-
-function renderAudit(){
-  const typeFilters = ['all','create','update','stage','delete','notification'];
-  const typeLabels  = ['All','Created','Updated','Stage change','Deleted','Notified'];
-  document.getElementById('audit-filter-chips').innerHTML = typeFilters.map((f,i)=>
-    `<button class="chip${auditTypeFilter===f?' active':''}" data-afilter="${f}">${typeLabels[i]}</button>`
-  ).join('');
-  document.querySelectorAll('[data-afilter]').forEach(b=>b.addEventListener('click',()=>{auditTypeFilter=b.dataset.afilter;renderAudit();}));
-
-  const q=(document.getElementById('search-audit').value||'').toLowerCase();
-  let list=auditLog;
-  if(auditTypeFilter!=='all') list=list.filter(e=>e.type===auditTypeFilter);
-  if(q) list=list.filter(e=>e.action.toLowerCase().includes(q)||e.officer.toLowerCase().includes(q));
-
-  if(!list.length){
-    document.getElementById('audit-list').innerHTML=`<div class="audit-empty"><i class="ti ti-clipboard-list"></i><p>${auditLog.length?'No entries match your search.':'No activity recorded yet. Actions will appear here as loans are created and updated.'}</p></div>`;
-    return;
-  }
-
-  const typeIcon={create:'ti-plus',update:'ti-pencil',stage:'ti-arrow-right',delete:'ti-trash',notification:'ti-bell'};
-  const rows=list.map(e=>`<tr>
-    <td style="color:var(--gray-400);white-space:nowrap;font-size:12px">${e.timestamp}</td>
-    <td><div style="display:flex;align-items:center;gap:6px">
-      <div class="officer-avatar">${e.officer.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase()}</div>
-      <span style="font-weight:500">${e.officer}</span>
-    </div></td>
-    <td><span class="audit-type ${e.type}"><i class="ti ${typeIcon[e.type]||'ti-dot'}" style="font-size:11px"></i>${e.type}</span></td>
-    <td style="color:var(--gray-600)">${e.action}</td>
-  </tr>`).join('');
-
-  document.getElementById('audit-list').innerHTML=`
-    <div class="audit-table-wrap">
-      <table class="audit-table">
-        <thead><tr><th>Time</th><th>Officer</th><th>Action type</th><th>Details</th></tr></thead>
-        <tbody>${rows}</tbody>
-      </table>
-    </div>`;
-}
+function showApp(session){
   document.getElementById('page-login').classList.remove('active');
   document.getElementById('page-app').classList.add('active');
   const av=session.displayName.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
@@ -736,9 +657,7 @@ document.getElementById('btn-login').addEventListener('click',()=>{
   else{err.classList.add('hidden');showApp(s);}
 });
 document.getElementById('login-password').addEventListener('keydown',e=>{if(e.key==='Enter')document.getElementById('btn-login').click();});
-function doLogout(){Auth.logout();document.getElementById('page-app').classList.remove('active');document.getElementById('page-login').classList.add('active');document.getElementById('login-username').value='';document.getElementById('login-password').value='';}
-document.getElementById('btn-logout').addEventListener('click',doLogout);
-document.getElementById('btn-logout-sidebar').addEventListener('click',doLogout);
+document.getElementById('btn-logout').addEventListener('click',()=>{Auth.logout();document.getElementById('page-app').classList.remove('active');document.getElementById('page-login').classList.add('active');});
 document.querySelectorAll('.nav-item').forEach(item=>item.addEventListener('click',e=>{e.preventDefault();navigateTo(item.dataset.view);}));
 document.getElementById('btn-new-loan').addEventListener('click',()=>openModal(null));
 document.getElementById('modal-close').addEventListener('click',closeModal);
@@ -752,8 +671,6 @@ document.getElementById('modal-delete').addEventListener('click',()=>{
 });
 document.getElementById('confirm-cancel').addEventListener('click',()=>document.getElementById('confirm-dialog').classList.add('hidden'));
 document.getElementById('confirm-ok').addEventListener('click',()=>{
-  const loan=loans.find(l=>l.id===editingId);
-  if(loan){const s=Auth.getSession();logAudit(s.displayName,'delete',`Deleted loan for ${loan.memberName} (${loan.accountNo})`);}
   loans=loans.filter(l=>l.id!==editingId);
   document.getElementById('confirm-dialog').classList.add('hidden');
   closeModal();
